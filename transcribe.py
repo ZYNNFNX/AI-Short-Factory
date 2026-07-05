@@ -2,22 +2,22 @@ import os
 from yt_dlp import YoutubeDL
 from faster_whisper import WhisperModel
 
-# Replace this link with any YouTube URL
-video_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+video_url = "PASTE_YOUR_YOUTUBE_URL_HERE"
 
 print("Downloading audio from YouTube... please wait...")
 
 ydl_opts = {
     'format': 'm4a/bestaudio/best',
     'outtmpl': 'yt_audio.%(ext)s',
-    'overwrites': True,
+    'overwrites': True,s
 }
 
 with YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
 
 print("\nAudio downloaded successfully! Booting up AI brain...")
-model = WhisperModel("tiny", device="cpu", compute_type="int8")
+
+model = WhisperModel("small", device="cpu", compute_type="int8")
 
 print("AI Brain loaded. Transcribing the YouTube video now...\n")
 segments, info = model.transcribe("yt_audio.m4a", beam_size=5)
