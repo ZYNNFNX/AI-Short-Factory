@@ -1,0 +1,8 @@
+# Ignore raw and processed audio assets
+*.m4a
+*.wav
+*.mp3
+
+# Ignore Python cache
+__pycache__/
+.pytest_cache/
