@@ -1,62 +1,74 @@
-import os
-from yt_dlp import YoutubeDL
+import json
+from pathlib import Path
+
 from faster_whisper import WhisperModel
-from pydub import AudioSegment
 
-# CONFIGURATION (ENTERPRISE CORE)
-TARGET_KEYWORD = "routine"  #test keyword
-AUDIO_FILE = "raw_source_audio.m4a"  # Unified file name
-OUTPUT_CLIP = "result_short_clip.wav"
 
-video_url = "https://www.youtube.com/watch?v=Szox9wD4HRU" #test video  
+PROJECT_DIR = Path(__file__).resolve().parent
+SOURCE_DIR = PROJECT_DIR / "data" / "source"
+TRANSCRIPT_DIR = PROJECT_DIR / "data" / "transcripts"
 
-# 1. AUTOMATED ASSET INGESTION
-if not os.path.exists(AUDIO_FILE):
-    print("📥 Ingesting media asset from source URL...")
-    ydl_opts = {
-        'format': 'm4a/bestaudio/best',
-        'outtmpl': 'raw_source_audio.%(ext)s',
-        'noplaylist': True,
-        'overwrites': True,
+TRANSCRIPT_JSON = TRANSCRIPT_DIR / "transcript.json"
+TRANSCRIPT_TEXT = TRANSCRIPT_DIR / "transcript.txt"
+
+
+def find_source_video():
+    video_files = [
+        path
+        for path in SOURCE_DIR.glob("source_video.*")
+        if path.suffix != ".json"
+    ]
+
+    if not video_files:
+        raise FileNotFoundError(
+            "No source video found. Run 'python ingest.py' first."
+        )
+
+    return video_files[0]
+
+
+def transcribe_video(video_path):
+    print("Loading Whisper transcription model...")
+    model = WhisperModel("small", device="cpu", compute_type="int8")
+
+    print(f"Transcribing video: {video_path}")
+    segments, info = model.transcribe(str(video_path), beam_size=5)
+
+    transcript_segments = []
+
+    for segment in segments:
+        transcript_segments.append(
+            {
+                "start": round(segment.start, 2),
+                "end": round(segment.end, 2),
+                "text": segment.text.strip(),
+            }
+        )
+
+    return {
+        "language": info.language,
+        "language_probability": round(info.language_probability, 2),
+        "segments": transcript_segments,
     }
-    with YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
-    print("✅ Source asset downloaded successfully.")
-else:
-    print("🔄 Local asset detected. Bypassing network download ingestion.")
 
-# 2. TIMESTAMPED ML TRANSCRIPTION PIPELINE
-print("\n🧠 Initializing Machine Learning Engine (Whisper-Small Array)...")
-model = WhisperModel("small", device="cpu", compute_type="int8")
 
-print("🎙️ Processing audio telemetry and mapping structural timestamps...")
-segments, info = model.transcribe(AUDIO_FILE, beam_size=5)
+def save_transcript(transcript):
+    TRANSCRIPT_DIR.mkdir(parents=True, exist_ok=True)
 
-clip_start = None
-clip_end = None
+    with TRANSCRIPT_JSON.open("w", encoding="utf-8") as json_file:
+        json.dump(transcript, json_file, indent=2, ensure_ascii=False)
 
-print("\n--- SYSTEM TRANSCRIPT LOG ---")
-for segment in segments:
-    print(f"[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}")
-    
-    # Track target semantic window
-    if TARGET_KEYWORD.lower() in segment.text.lower() and clip_start is None:
-        clip_start = max(0, segment.start - 0.2)
-        clip_end = segment.end + 0.3
-        print(f"🎯 Target semantic boundary locked: {clip_start:.2f}s - {clip_end:.2f}s")
-print("-----------------------------\n")
+    with TRANSCRIPT_TEXT.open("w", encoding="utf-8") as text_file:
+        for segment in transcript["segments"]:
+            text_file.write(
+                f"[{segment['start']}s -> {segment['end']}s] {segment['text']}\n"
+            )
 
-# 3. PRECISION WAVEFORM SEGMENTATION
-if clip_start is not None and clip_end is not None:
-    print(f"🎬 Segmenting waveform array from {clip_start:.2f}s to {clip_end:.2f}s...")
-    
-    start_ms = int(clip_start * 1000)
-    end_ms = int(clip_end * 1000)
-    
-    full_audio = AudioSegment.from_file(AUDIO_FILE)
-    short_clip = full_audio[start_ms:end_ms]
-    
-    short_clip.export(OUTPUT_CLIP, format="wav")
-    print(f"🔥 Success! Exported pristine media sub-segment: '{OUTPUT_CLIP}'")
-else:
-    print("❌ Target phrase execution terminated: Keyword sequence not found in source text.")
+    print(f"Saved transcript JSON: {TRANSCRIPT_JSON}")
+    print(f"Saved readable transcript: {TRANSCRIPT_TEXT}")
+
+
+if __name__ == "__main__":
+    source_video = find_source_video()
+    transcript_data = transcribe_video(source_video)
+    save_transcript(transcript_data)

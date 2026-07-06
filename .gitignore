@@ -1,4 +1,6 @@
-# Ignore raw and processed audio assets
+# Ignore downloaded and processed media assets
+data/
+*.mp4
 *.m4a
 *.wav
 *.mp3
