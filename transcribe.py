@@ -29,10 +29,10 @@ def find_source_video():
 
 def transcribe_video(video_path):
     print("Loading Whisper transcription model...")
-    model = WhisperModel("small", device="cpu", compute_type="int8")
+    model = WhisperModel("tiny", device="cpu", compute_type="float16")
 
     print(f"Transcribing video: {video_path}")
-    segments, info = model.transcribe(str(video_path), beam_size=5)
+    segments, info = model.transcribe(str(video_path), beam_size=1)
 
     transcript_segments = []
 

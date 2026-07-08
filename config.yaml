@@ -1,0 +1,142 @@
+# AI Clipper Configuration
+
+# Highlight Detection Optimization
+clip_detection:
+  min_duration_seconds: 15
+  max_duration_seconds: 45
+  top_clip_count: 5
+  
+  # Hook Words & Triggers (engagement signals)
+  hook_words:
+    - how
+    - why
+    - best
+    - important
+    - secret
+    - mistake
+    - never
+    - always
+    - routine
+    - start
+    - exactly
+    - imagine
+    - consider
+    - breakthrough
+    - game-changing
+    - revolutionary
+    - incredible
+    - amazing
+    - proven
+    - essential
+    
+  # Transition Phrases (natural boundaries)
+  transition_phrases:
+    - "now here's the thing"
+    - "so basically"
+    - "let me explain"
+    - "here's what"
+    - "the point is"
+    - "moving on to"
+    - "another important"
+    - "to summarize"
+    
+  # High Energy Keywords (intensity markers)
+  high_energy_keywords:
+    - amazing
+    - incredible
+    - breakthrough
+    - game-changing
+    - revolutionary
+    - powerful
+    - stunning
+    - mind-blowing
+    - genius
+    - brilliant
+    
+  # Scoring weights
+  scoring_weights:
+    hook_word: 2
+    transition: 3
+    high_energy: 4
+    question_mark: 3
+    optimal_duration: 5
+    word_count_minimum: 2
+    semantic_density: 5
+    speaker_change_penalty: -10
+    
+  # Quality thresholds
+  min_confidence_score: 0.3
+  min_word_count: 25
+  pause_threshold_seconds: 1.0
+  
+# Auto-Reframe Execution
+face_tracking:
+  enable_face_detection: true
+  output_aspect_ratio: "9:16"  # Vertical video
+  target_crop_width: 1080
+  target_crop_height: 1920
+  
+  # MediaPipe settings
+  face_detection_confidence: 0.7
+  face_smoothing_factor: 0.5
+  kalman_filter_enabled: true
+  
+  # Multi-face handling
+  multi_face_strategy: "primary_speaker"  # center, primary_speaker, largest
+  face_proximity_threshold: 0.3
+  profile_angle_tolerance: 30  # degrees
+  
+  # Processing
+  frame_skip_interval: 3  # Process every 3rd frame, interpolate rest
+  enable_gpu_acceleration: false
+  fallback_to_center_crop: true
+  
+  # Output
+  codec: "h264"
+  quality_preset: "medium"  # fast, medium, slow
+  
+# Automated Captions
+captions:
+  enable_captions: true
+  burn_into_video: true
+  
+  # Animation settings
+  animation_style: "fade_in"  # fade_in, slide_in, pop, typewriter
+  animation_duration_ms: 200
+  word_hold_duration_extra_ms: 50
+  
+  # Typography
+  font_name: "Arial Bold"
+  font_size_base: 48
+  font_color: "#FFFFFF"
+  highlight_color: "#FFD700"  # Gold for first word
+  shadow_enabled: true
+  shadow_offset: 3
+  shadow_blur: 5
+  
+  # Background
+  background_style: "rounded_box"  # rounded_box, pill, block
+  background_color: "#000000"
+  background_opacity: 0.85
+  
+  # Positioning
+  position_y_offset: 0.8  # 0.0 (top) to 1.0 (bottom)
+  horizontal_padding: 20
+  vertical_padding: 15
+  
+  # Subtitle sync
+  sync_tolerance_ms: 50
+  max_line_width: 30  # characters
+  
+# Video Output
+output:
+  format: "mp4"
+  frame_rate: 30
+  bitrate: "8000k"
+  audio_bitrate: "128k"
+  
+# Logging
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  log_file: "ai_clipper.log"
+  save_detailed_analysis: true
