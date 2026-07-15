@@ -25,10 +25,10 @@ python detect_clips_v2.py
 # Outputs: clip_candidates.json with detailed analysis
 ```
 
-### 5. Render with Face Tracking & Captions (NEW)
+### 5. Render with Captions (NEW)
 ```bash
 python render_clip_v2.py
-# Outputs: final_clips/clip_1.mp4 (9:16 vertical with animated captions)
+# Outputs: final_clips/clip_1.mp4 (9:16 vertical with captions)
 ```
 
 ---
@@ -44,7 +44,7 @@ Input Video → Basic Center Crop → Static Video
 ```
 Input Video → Semantic Analysis → Best Clips Found
            ↓
-      Face Detection → Dynamic 9:16 Reframe
+      9:16 Crop & Letterbox
            ↓
       Word Timestamps → Animated Captions
            ↓
@@ -68,15 +68,13 @@ Input Video → Semantic Analysis → Best Clips Found
 
 ---
 
-### Feature 2: Face Tracking (9:16 Vertical)
-**What it does:** Automatically frames the speaker for vertical video format
+### Feature 2: Vertical 9:16 Crop
+**What it does:** Formats the clip for mobile-first viewing in 9:16 aspect ratio.
 
 **How it works:**
-- Detects speaker's face in real-time
-- Keeps face centered as video plays
-- Crops to 9:16 aspect ratio (TikTok/Instagram Reels format)
-- Smooth camera movement (no jitter)
-- Falls back to center if face not detected
+- Scales and pads the clip to 1080×1920
+- Preserves original image content with letterboxing if needed
+- Ready for TikTok/Instagram Reels/YouTube Shorts
 
 **See the results:** `final_clips/clip_1.mp4` (1080×1920)
 
@@ -107,10 +105,10 @@ clip_detection:
   max_duration_seconds: 45  # Longer clips
   top_clip_count: 5         # More/fewer clips
 
-# Face tracking settings
-face_tracking:
-  enable_face_detection: true
-  frame_skip_interval: 3    # Process every 3rd frame (faster)
+# Output settings
+output:
+  target_crop_width: 1080
+  target_crop_height: 1920
 
 # Caption styling
 captions:
@@ -145,7 +143,7 @@ captions:
                         ↓
 ┌─────────────────────────────────────────────────┐
 │ 4. RENDER (v2): Create 9:16 vertical video      │
-│    - Face tracking for dynamic framing           │
+│    - Scale and letterbox to 9:16 format          │
 │    - Word-by-word animated captions              │
 │    Command: python render_clip_v2.py            │
 │    Output: final_clips/clip_1.mp4 (1080×1920)  │
@@ -166,8 +164,7 @@ ai_clipper/
 ├── detect_clips.py          # Original basic detection
 ├── detect_clips_v2.py       # ✨ NEW - Smart detection
 ├── render_clip.py           # Original basic rendering
-├── render_clip_v2.py        # ✨ NEW - Face tracking + captions
-├── face_tracking.py         # ✨ NEW - Face detection
+├── render_clip_v2.py        # ✨ NEW - Vertical render + captions
 ├── caption_renderer.py      # ✨ NEW - Animated captions
 ├── utils.py                 # ✨ NEW - Shared utilities
 ├── config.yaml              # ✨ NEW - Configuration

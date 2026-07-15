@@ -231,7 +231,7 @@ SYNC_TOLERANCE_MS: 50                   # Timing accuracy
 **Processing Steps:**
 
 ```python
-def render_clip_with_face_tracking():
+def render_clip():
     """Main render function"""
     
     # Step 1: Extract clip segment
@@ -241,13 +241,13 @@ def render_clip_with_face_tracking():
         duration
     ) → temp/clip_segment.mp4
     
-    # Step 2: Apply face tracking (if enabled)
-    if ENABLE_FACE_DETECTION:
-        apply_face_tracking_crop(
-            clip_segment,
-            output_resolution=(1080, 1920)
-        ) → temp/clip_reframed.mp4
-    
+    # Step 2: Apply vertical crop and letterbox
+    extract_clip_segment(
+        source_video,
+        start_time,
+        duration
+    ) → temp/clip_reframed.mp4
+
     # Step 3: Burn captions (if enabled)
     if BURN_CAPTIONS:
         burn_animated_captions(
@@ -267,12 +267,11 @@ def render_clip_with_face_tracking():
    - Method: FFmpeg stream copy (fast)
    - Codec: H.264, AAC audio
 
-2. **Face Tracking Phase:**
+2. **Vertical Crop Phase:**
    - Input: Clip segment
-   - Process: Frame-by-frame
-   - Method: cv2 VideoCapture + write
+   - Process: FFmpeg scaling/padding
    - Output: 1080×1920 @30fps
-   - Performance: ~20 FPS full, ~60 FPS with skipping
+   - Performance: near instantaneous
 
 3. **Caption Phase:**
    - Input: Video + transcript

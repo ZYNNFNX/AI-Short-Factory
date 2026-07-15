@@ -26,8 +26,8 @@ BURN_INTO_VIDEO = CAPTION_CONFIG.get("burn_into_video", True)
 ANIMATION_STYLE = CAPTION_CONFIG.get("animation_style", "fade_in")
 ANIMATION_DURATION_MS = CAPTION_CONFIG.get("animation_duration_ms", 200)
 WORD_HOLD_DURATION_EXTRA_MS = CAPTION_CONFIG.get("word_hold_duration_extra_ms", 50)
-FONT_NAME = CAPTION_CONFIG.get("font_name", "Arial Bold")
-FONT_SIZE_BASE = CAPTION_CONFIG.get("font_size_base", 48)
+FONT_NAME = CAPTION_CONFIG.get("font_name", "Comic Sans MS")
+FONT_SIZE_BASE = CAPTION_CONFIG.get("font_size_base", 42)
 FONT_COLOR = CAPTION_CONFIG.get("font_color", "#FFFFFF")
 HIGHLIGHT_COLOR = CAPTION_CONFIG.get("highlight_color", "#FFD700")
 SHADOW_ENABLED = CAPTION_CONFIG.get("shadow_enabled", True)
@@ -90,7 +90,9 @@ class CaptionAnimator:
         try:
             # Try common font paths
             font_paths = [
-                Path("C:/Windows/Fonts/arialbd.ttf"),  # Windows bold Arial
+                Path("C:/Windows/Fonts/comic.ttf"),       # Windows Comic Sans MS
+                Path("C:/Windows/Fonts/comicbd.ttf"),     # Windows Comic Sans MS Bold
+                Path("C:/Windows/Fonts/arialbd.ttf"),     # Windows bold Arial
                 Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"),  # Linux
                 Path("/System/Library/Fonts/Helvetica.ttc"),  # macOS
             ]

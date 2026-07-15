@@ -27,10 +27,8 @@ OUTPUT_FPS = OUTPUT_CONFIG.get("frame_rate", 30)
 OUTPUT_BITRATE = OUTPUT_CONFIG.get("bitrate", "8000k")
 AUDIO_BITRATE = OUTPUT_CONFIG.get("audio_bitrate", "128k")
 ENABLE_CAPTIONS = CAPTION_CONFIG.get("enable_captions", True)
-# Face tracking / output framing config (used to force 9:16 output)
-FACE_CONFIG = config.get("face_tracking", {})
-TARGET_WIDTH = FACE_CONFIG.get("target_crop_width", 1080)
-TARGET_HEIGHT = FACE_CONFIG.get("target_crop_height", 1920)
+TARGET_WIDTH = OUTPUT_CONFIG.get("target_crop_width", 1080)
+TARGET_HEIGHT = OUTPUT_CONFIG.get("target_crop_height", 1920)
 
 
 def find_ffmpeg() -> str:
@@ -241,16 +239,19 @@ def extract_clip_segment_with_captions(ffmpeg_path: str, source: Path, output: P
     subtitle_file = subtitle_path.as_posix()
     subtitle_file = subtitle_file.replace(":", "\\:")
 
-    scale_pad = (
-        f"scale={TARGET_WIDTH}:{TARGET_HEIGHT}:force_original_aspect_ratio=decrease,"
-        f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:(ow-iw)/2:(oh-ih)/2,setsar=1"
+    # Reserve a bottom subtitle bar below the scaled video frame.
+    # The video content is scaled to 1080x1780 and letterboxed, then padded to 1080x1920.
+    video_pad = (
+        f"scale={TARGET_WIDTH}:{TARGET_HEIGHT - 140}:force_original_aspect_ratio=decrease,"
+        f"pad={TARGET_WIDTH}:{TARGET_HEIGHT - 140}:(ow-iw)/2:(oh-ih)/2,setsar=1,"
+        f"pad={TARGET_WIDTH}:{TARGET_HEIGHT}:0:{TARGET_HEIGHT - 140}:color=black"
     )
 
     filter_graph = (
-        f"subtitles='{subtitle_file}':force_style='FontName=Arial,FontSize=36,"
+        video_pad,
+        f"subtitles='{subtitle_file}':force_style='FontName=Comic Sans MS,FontSize=26,"
         "PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,"
-        "Outline=2,Shadow=0,Alignment=2,MarginV=0'",
-        scale_pad,
+        "Outline=2,Shadow=0,Alignment=2,MarginV=15'",
     )
 
     # Join filters with comma
